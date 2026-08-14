@@ -9,3 +9,6 @@ class UserLogin(BaseModel):
     username: str
     email: EmailStr
     password: str
+
+class MessageSchema(BaseModel):
+    message: str

@@ -18,7 +18,6 @@ config = AuthXConfig(
     JWT_TOKEN_LOCATION=["headers"],
 )
 
-
 auth = AuthX(config=config)
 router = APIRouter()
 
@@ -31,6 +30,7 @@ async def register(
         email = register.email,  
         username = register.username,
         pwd = bcrypt.hashpw(register.password.encode(), bcrypt.gensalt(prefix=b"2b")).decode('utf-8'),
+        role = 'user'
     )
     db.add(reg)
     db.commit()
@@ -47,3 +47,4 @@ async def login(
         token = auth.create_access_token(uid=str(log.id))
         return {"token": token}
     raise HTTPException(status_code=400, detail="Invalid username or password")
+
