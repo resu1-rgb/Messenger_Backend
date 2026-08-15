@@ -10,5 +10,6 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
-class MessageSchema(BaseModel):
+class SentMessage(BaseModel):
     message: str
+    receiver_message: str

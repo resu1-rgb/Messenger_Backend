@@ -1,14 +1,14 @@
-from typing import Annotated
 import os
-from dotenv import load_dotenv
+import bcrypt
 
+from dotenv import load_dotenv
+from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from database import get_db
 from sqlalchemy.orm import Session
 from scheme import UserRegistration, UserLogin
 from models import Users
 from authx import AuthX, AuthXConfig
-import bcrypt
 
 load_dotenv()
 

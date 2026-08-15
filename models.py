@@ -1,10 +1,8 @@
-from fastapi import APIRouter
-from pydantic import BaseModel
 from sqlalchemy import ForeignKey
 from database import Base
 from sqlalchemy.orm import Mapped, mapped_column
-
-router = APIRouter()
+from datetime import datetime
+from sqlalchemy.sql import func
 
 class Users(Base):
     __tablename__ = "users"
@@ -20,4 +18,7 @@ class Message(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    receiver_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     message: Mapped[str] = mapped_column()
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+
