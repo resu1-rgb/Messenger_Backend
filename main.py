@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from fastapi import FastAPI, Depends, HTTPException
 from pytest import Session
 from authorization import router as authorization_router, auth
@@ -48,7 +46,6 @@ async def users_id(
     if not users:
             raise HTTPException(status_code=404, detail="User not found")
     return {"users": users}
-
 
 app.include_router(authorization_router)
 app.include_router(conversations_router)

@@ -29,7 +29,7 @@ async def register(
     reg = Users(
         email = register.email,  
         username = register.username,
-        pwd = bcrypt.hashpw(register.password.encode(), bcrypt.gensalt(prefix=b"2b")).decode('utf-8'),
+        pwd = bcrypt.hashpw(register.password.encode(), bcrypt.gensalt(prefix= b"2b").decode('UTF-8')),
         role = 'user'
     )
     db.add(reg)

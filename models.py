@@ -21,4 +21,5 @@ class Message(Base):
     receiver_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     message: Mapped[str] = mapped_column()
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    is_read: Mapped[bool] = mapped_column(default=False)
 
