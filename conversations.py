@@ -1,13 +1,16 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, WebSocket
-from pytest import Session
+from fastapi import APIRouter, Depends, HTTPException, WebSocket, Query
+from sqlalchemy.orm import Session
 from authorization import auth
+from auth_config import config
 from database import get_db
 from models import Users, Message
 from typing import Annotated
 from scheme import SentMessage
 from dependencies import current_user
+import jwt
+
 router = APIRouter()
 
 
@@ -38,15 +41,23 @@ connected_clients = {}
 
 @router.websocket("/ws/{user_id}")
 async def ws(
-    ws: WebSocket, 
-    user_id: int,
-    db: Annotated[Session, Depends(get_db)]
+    ws: WebSocket,
+    db: Annotated[Session, Depends(get_db)],
+    token: str = Query(...),
 ):
     await ws.accept()
+    
+    try:
+        payload = jwt.decode(token, config.JWT_SECRET_KEY, algorithms=[config.JWT_ALGORITHM])
+        user_id = int(payload["sub"])
+    except Exception:
+        await ws.close(code=1008)
+        return
+
 
     user = db.query(Users).filter(Users.id == user_id).first()
     if not user:
-        await ws.close(status_code=404, detail="User not found")
+        await ws.close(code=1008)
         db.close()
         return
 
@@ -102,7 +113,7 @@ async def ws(
                 'type': 'message_sent',
                 'message_id': new_message.id,
                 'receiver_id': receiver_id
-            })
+            })  
             
     except Exception as e:
         print(f'Error {e}')

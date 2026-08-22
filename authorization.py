@@ -1,24 +1,12 @@
-import os
-import bcrypt
-
-from dotenv import load_dotenv
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from database import get_db
 from sqlalchemy.orm import Session
 from scheme import UserRegistration, UserLogin
 from models import Users
-from authx import AuthX, AuthXConfig
+from auth_config import auth
+from dependencies import password_hash, verify_password
 
-load_dotenv()
-
-config = AuthXConfig(
-    JWT_SECRET_KEY=os.getenv("JWT_SECRET_KEY"),
-    JWT_ALGORITHM=os.getenv("JWT_ALGORITHM"),
-    JWT_TOKEN_LOCATION=["headers"],
-)
-
-auth = AuthX(config=config)
 router = APIRouter()
 
 @router.post("/auth/register")
@@ -29,7 +17,7 @@ async def register(
     reg = Users(
         email = register.email,  
         username = register.username,
-        pwd = bcrypt.hashpw(register.password.encode(), bcrypt.gensalt(prefix= b"2b").decode('UTF-8')),
+        pwd = password_hash(register.password),
         role = 'user'
     )
     db.add(reg)
@@ -43,7 +31,7 @@ async def login(
 ):
     log = db.query(Users).filter(Users.email == login.email).first()
 
-    if log and bcrypt.checkpw(login.password.encode(), log.pwd.encode('UTF-8')):
+    if log and verify_password(login.password, log.pwd):
         token = auth.create_access_token(uid=str(log.id))
         return {"token": token}
     raise HTTPException(status_code=400, detail="Invalid username or password")
